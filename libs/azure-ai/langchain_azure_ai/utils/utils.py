@@ -38,8 +38,14 @@ class JSONObjectEncoder(json.JSONEncoder):
                 **{slot: getattr(o, slot) for slot in o.__slots__},
             }
 
-        return super().default(o)
-
+        try:
+            return super().default(o)
+        except TypeError:
+            # Fallback to string representation for unsupported types
+            return {
+                "__class__" : o.__class__.__name__,
+                "__str__": str(o)
+                }
 
 def get_endpoint_from_project(
     project_connection_string: str, credential: TokenCredential
